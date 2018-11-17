@@ -27,6 +27,7 @@ class Config:
 
         # Directories
         self._configs["data_dir"]   = "./data"
+        self._configs["metadata_dir"]   = "./metadata"
         self._configs["cache_dir"]  = "./cache"
         self._configs["config_dir"] = "./config"
         self._configs["result_dir"] = "./results"
@@ -164,6 +165,10 @@ class Config:
     @property
     def data_dir(self):
         return self._configs["data_dir"]
+
+    @property
+    def metadata_dir(self):
+        return self._configs["metadata_dir"]
 
     @property
     def cache_dir(self):
