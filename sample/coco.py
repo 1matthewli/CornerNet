@@ -50,7 +50,6 @@ def kp_detection(db, k_ind, data_aug, debug):
     data_rng   = system_configs.data_rng
     batch_size = system_configs.batch_size
 
-    categories   = db.configs["categories"]
     input_size   = db.configs["input_size"]
     output_size  = db.configs["output_sizes"][0]
 
@@ -62,6 +61,10 @@ def kp_detection(db, k_ind, data_aug, debug):
     gaussian_bump = db.configs["gaussian_bump"]
     gaussian_iou  = db.configs["gaussian_iou"]
     gaussian_rad  = db.configs["gaussian_radius"]
+
+    hierarchy     = db.configs["hierarchy"]
+    categories    = db.configs["9k_categories"] if hierarchy else db.configs["categories"]
+
 
     max_tag_len = 128
 
@@ -134,6 +137,10 @@ def kp_detection(db, k_ind, data_aug, debug):
             xbr = int(fxbr)
             ybr = int(fybr)
 
+            # ASSUME that: category is index from 0 to 9k_categories
+            # if hierarchy, then find all parents in word tree
+            categories = get_hierarchy(category) if hierarchy else [category]
+
             if gaussian_bump:
                 width  = detection[2] - detection[0]
                 height = detection[3] - detection[1]
@@ -147,11 +154,13 @@ def kp_detection(db, k_ind, data_aug, debug):
                 else:
                     radius = gaussian_rad
 
-                draw_gaussian(tl_heatmaps[b_ind, category], [xtl, ytl], radius)
-                draw_gaussian(br_heatmaps[b_ind, category], [xbr, ybr], radius)
+                for cat in categories:
+                    draw_gaussian(tl_heatmaps[b_ind, cat], [xtl, ytl], radius)
+                    draw_gaussian(br_heatmaps[b_ind, cat], [xbr, ybr], radius)
             else:
-                tl_heatmaps[b_ind, category, ytl, xtl] = 1
-                br_heatmaps[b_ind, category, ybr, xbr] = 1
+                for cat in categories:
+                    tl_heatmaps[b_ind, cat, ytl, xtl] = 1
+                    br_heatmaps[b_ind, cat, ybr, xbr] = 1
 
             tag_ind = tag_lens[b_ind]
             tl_regrs[b_ind, tag_ind, :] = [fxtl - xtl, fytl - ytl]
