@@ -62,8 +62,7 @@ def kp_detection(db, k_ind, data_aug, debug):
     gaussian_iou  = db.configs["gaussian_iou"]
     gaussian_rad  = db.configs["gaussian_radius"]
 
-    hierarchy     = db.configs["hierarchy"]
-    categories    = db.configs["9k_categories"] if hierarchy else db.configs["categories"]
+    categories    = db.configs["categories"]
 
 
     max_tag_len = 128
@@ -137,9 +136,8 @@ def kp_detection(db, k_ind, data_aug, debug):
             xbr = int(fxbr)
             ybr = int(fybr)
 
-            # ASSUME that: category is index from 0 to 9k_categories
-            # if hierarchy, then find all parents in word tree
-            categories = get_hierarchy(category) if hierarchy else [category]
+            wnid = coco_to_wnid(category)
+            categories = db.tree_parents(wnid)
 
             if gaussian_bump:
                 width  = detection[2] - detection[0]

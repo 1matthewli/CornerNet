@@ -74,28 +74,33 @@ class MSCOCO(DETECTION):
         tree_file = "../metadata/9k.tree"
         f = open(tree_file, 'r')
 
-        node_indices = {}
-        tree_dict = {}
+        index_to_node = {}
+        wnid_to_index = {}
+        wnid_to_node = {}
 
         root = Node("root")
-        node_indices[-1] = root
+        index_to_node[-1] = root
 
         lines = f.readlines()
         for i in range(len(lines)):
             line = lines[i]
             tokens = line.split()
 
-            new_node = Node(tokens[0], parent=node_indices[int(tokens[1])])
-            node_indices[i] = new_node
-            tree_dict[tokens[0]] = new_node
+            new_node = Node(tokens[0], parent=index_to_node[int(tokens[1])])
+            index_to_node[i] = new_node
+            wnid_to_node[tokens[0]] = new_node
+            wnid_to_index[tokens[0]] = i
 
-        self._tree_dict = tree_dict
+        self._tree_dict = wnid_to_node
+        self._tree_indices = wnid_to_index
 
     def tree_parents(self, wnid):
-        return self._tree_dict[wnid].ancestors
+        ancestors = self._tree_dict[wnid].ancestors
+        return [self._tree_indices[n.name] for n in ancestors]
 
     def tree_siblings(self, wnid):
-        return self._tree_dict[wnid].siblings
+        siblings = self._tree_dict[wnid].siblings
+        return [self._tree_indices[n.name] for n in siblings]
 
     def _load_data(self):
         print("loading from cache file: {}".format(self._cache_file))

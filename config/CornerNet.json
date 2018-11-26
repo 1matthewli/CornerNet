@@ -36,7 +36,6 @@
 
         "border": 128,
         "gaussian_bump": true,
-        "hierarchy": true,
 
         "input_size": [511, 511],
         "output_sizes": [[128, 128]],
@@ -44,8 +43,7 @@
         "test_scales": [1],
 
         "top_k": 100,
-        "categories": 80,
-        "9k_categories": 9418,
+        "categories": 9418,
         "ae_threshold": 0.5,
         "nms_threshold": 0.5,
 
