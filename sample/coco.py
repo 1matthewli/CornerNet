@@ -136,8 +136,9 @@ def kp_detection(db, k_ind, data_aug, debug):
             xbr = int(fxbr)
             ybr = int(fybr)
 
-            wnid = coco_to_wnid(category)
-            categories = db.tree_parents(wnid)
+            # category is coco index
+            tree_index = db.coco_index(category)
+            categories = db.tree_parents(tree_index)
 
             if gaussian_bump:
                 width  = detection[2] - detection[0]

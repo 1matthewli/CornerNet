@@ -69,17 +69,27 @@ class MSCOCO(DETECTION):
 
         self._load_coco_data()
         self._load_tree()
+        self._load_coco_tree_indices()
+
+    def _load_coco_tree_indices(self):
+        coco_map_file = "../metadata/coco9k.map"
+        f = open(coco_map_file, 'r')
+        indices = [int(x) for x in f.readlines()]
+
+        # map from coco index to 9k cat index
+        self._coco_indices = indices
+
+    def coco_index(self, coco_index):
+        return self._coco_indices[coco_index]   
 
     def _load_tree(self):
         tree_file = "../metadata/9k.tree"
         f = open(tree_file, 'r')
 
-        index_to_node = {}
-        wnid_to_index = {}
-        wnid_to_node = {}
-
         root = Node("root")
+        index_to_node = {}
         index_to_node[-1] = root
+        wnid_to_index = {}
 
         lines = f.readlines()
         for i in range(len(lines)):
@@ -88,18 +98,20 @@ class MSCOCO(DETECTION):
 
             new_node = Node(tokens[0], parent=index_to_node[int(tokens[1])])
             index_to_node[i] = new_node
-            wnid_to_node[tokens[0]] = new_node
             wnid_to_index[tokens[0]] = i
 
-        self._tree_dict = wnid_to_node
-        self._tree_indices = wnid_to_index
+        # map from 9k cat index to <node>
+        self._tree_dict = index_to_node     
 
-    def tree_parents(self, wnid):
-        ancestors = self._tree_dict[wnid].ancestors
+        # map from wnid name to 9k category index
+        self._tree_indices = wnid_to_index  
+
+    def tree_parents(self, index):
+        ancestors = self._tree_dict[index].ancestors
         return [self._tree_indices[n.name] for n in ancestors]
 
-    def tree_siblings(self, wnid):
-        siblings = self._tree_dict[wnid].siblings
+    def tree_siblings(self, index):
+        siblings = self._tree_dict[index].siblings
         return [self._tree_indices[n.name] for n in siblings]
 
     def _load_data(self):
