@@ -6,6 +6,7 @@ import json
 import numpy as np
 import pickle
 
+from anytree import Node, RenderTree
 from tqdm import tqdm
 from db.detection import DETECTION
 from config import system_configs
@@ -66,7 +67,35 @@ class MSCOCO(DETECTION):
         self._load_data()
         self._db_inds = np.arange(len(self._image_ids))
 
-        self._load_coco_data() 
+        self._load_coco_data()
+        self._load_tree()
+
+    def _load_tree(self):
+        tree_file = "../metadata/9k.tree"
+        f = open(tree_file, 'r')
+
+        node_indices = {}
+        tree_dict = {}
+
+        root = Node("root")
+        node_indices[-1] = root
+
+        lines = f.readlines()
+        for i in range(len(lines)):
+            line = lines[i]
+            tokens = line.split()
+
+            new_node = Node(tokens[0], parent=node_indices[int(tokens[1])])
+            node_indices[i] = new_node
+            tree_dict[tokens[0]] = new_node
+
+        self._tree_dict = tree_dict
+
+    def tree_parents(self, wnid):
+        return self._tree_dict[wnid].ancestors
+
+    def tree_siblings(self, wnid):
+        return self._tree_dict[wnid].siblings
 
     def _load_data(self):
         print("loading from cache file: {}".format(self._cache_file))
