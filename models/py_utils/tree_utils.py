@@ -19,7 +19,18 @@ def read_tree():
 		node_indices[i] = new_node
 		node_dict[tokens[0]] = new_node
 
+	groups = []
+	print(groups)
+	add_group([root], groups)
+	print(groups[1])
 	return node_dict
 
+def add_group(level, groups):
+    for node in level:
+        if not node.is_leaf:
+            children = node.children
+            curr_group = [n.name for n in children]
+            groups.append(curr_group)
+            add_group(children, groups)
+
 tree_dict = read_tree()
-print(tree_dict['n00003553'].ancestors)

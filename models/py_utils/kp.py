@@ -6,7 +6,7 @@ from .utils import convolution, residual
 from .utils import make_layer, make_layer_revr
 
 from .kp_utils import _tranpose_and_gather_feat, _decode
-from .kp_utils import _sigmoid, _ae_loss, _regr_loss, _neg_loss
+from .kp_utils import _sigmoid, _ae_loss, _regr_loss, _neg_loss, _hierarchy_softmax
 from .kp_utils import make_tl_layer, make_br_layer, make_kp_layer
 from .kp_utils import make_pool_layer, make_unpool_layer
 from .kp_utils import make_merge_layer, make_inter_layer, make_cnv_layer
@@ -283,8 +283,8 @@ class AELoss(nn.Module):
         # focal loss
         focal_loss = 0
 
-        tl_heats = [_sigmoid(t) for t in tl_heats]
-        br_heats = [_sigmoid(b) for b in br_heats]
+        tl_heats = [_hierarchy_softmax(t) for t in tl_heats]
+        br_heats = [_hierarchy_softmax(b) for b in br_heats]
 
         focal_loss += self.focal_loss(tl_heats, gt_tl_heat)
         focal_loss += self.focal_loss(br_heats, gt_br_heat)

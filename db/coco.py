@@ -74,13 +74,23 @@ class MSCOCO(DETECTION):
     def _load_coco_tree_indices(self):
         coco_map_file = "../metadata/coco9k.map"
         f = open(coco_map_file, 'r')
+
         indices = [int(x) for x in f.readlines()]
+        f.close()
 
         # map from coco index to 9k cat index
         self._coco_indices = indices
 
     def coco_index(self, coco_index):
         return self._coco_indices[coco_index]   
+
+    def _add_group(self, level, groups):
+        for node in level:
+            if not node.is_leaf:
+                children = node.children
+                curr_group = [self._tree_indices[n.name] for n in children]
+                groups.append(curr_group)
+                self._add_group(children, groups)
 
     def _load_tree(self):
         tree_file = "../metadata/9k.tree"
@@ -91,7 +101,10 @@ class MSCOCO(DETECTION):
         index_to_node[-1] = root
         wnid_to_index = {}
 
+        # generate tree
         lines = f.readlines()
+        f.close()
+
         for i in range(len(lines)):
             line = lines[i]
             tokens = line.split()
@@ -99,6 +112,11 @@ class MSCOCO(DETECTION):
             new_node = Node(tokens[0], parent=index_to_node[int(tokens[1])])
             index_to_node[i] = new_node
             wnid_to_index[tokens[0]] = i
+
+        # generate groups
+        groups = []
+        self._add_group([root], groups)
+        self._tree_groups = groups
 
         # map from 9k cat index to <node>
         self._tree_dict = index_to_node     

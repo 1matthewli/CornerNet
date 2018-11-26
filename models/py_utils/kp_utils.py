@@ -173,6 +173,10 @@ def _neg_loss(preds, gt):
             loss = loss - (pos_loss + neg_loss) / num_pos
     return loss
 
+def _hierarchy_softmax(x):
+    # TODO
+    return x
+
 def _sigmoid(x):
     x = torch.clamp(x.sigmoid_(), min=1e-4, max=1-1e-4)
     return x
